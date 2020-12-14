@@ -7,7 +7,7 @@ from math import sqrt
 cat_cascade = cv.CascadeClassifier(r"D:\Python\KG\source\haarcascade_frontalcatface.xml")  ###path of cascade file
 cat_cascade_ext = cv.CascadeClassifier(r"D:\Python\KG\source\haarcascade_frontalcatface_extended.xml")  ###path of cascade file
 my_cascade = cv.CascadeClassifier(r"D:\Python\KG\source\cascade_cat.xml")
-# my_cascade_1 = cv.CascadeClassifier(r"D:\Python\KG\cat_1.xml")
+my_cascade_1 = cv.CascadeClassifier(r"D:\Python\KG\updated.xml")
 ## following is an test image u can take any image from the p folder in the temp folder and paste address of it on below line
 SF = 1.0485258
 N = 3
@@ -115,21 +115,22 @@ def processImage(image_dir, image_name):
     if len(my_cats) > 1:
         my_cats = approximate(my_cats, (gray.shape[1], gray.shape[0]))
 
-    #my_cats_1 = my_cascade_1.detectMultiScale(gray, scaleFactor=SF, minNeighbors=N, minSize=(50, 50))  # try to tune this 6.5 and 17 parameter to get good result
-
+    my_cats_1 = my_cascade_1.detectMultiScale(gray, scaleFactor=SF, minNeighbors=N, minSize=(50, 50))  # try to tune this 6.5 and 17 parameter to get good result
+    if len(my_cats_1) > 1:
+        my_cats_1 = approximate(my_cats_1, (gray.shape[1], gray.shape[0]))
     ##if not getting good result try to train new cascade.xml file again deleting other file expect p and n in temp folder
     print('1_' + image_name, cats)
     print('2_' + image_name, cats_ext)
     print('my_' + image_name, my_cats)
-    #print('m_' + image_name, my_cats_1)
+    print('m_' + image_name, my_cats_1)
     for (x, y, w, h) in cats:
         img = cv.rectangle(resized, (x, y), (x + w, y + h), (255, 0, 0), 2)
     for (x, y, w, h) in cats_ext:
         img = cv.rectangle(resized, (x, y), (x + w, y + h), (0, 255, 0), 2)
     for (x, y, w, h) in my_cats:
         img = cv.rectangle(resized, (x, y), (x + w, y + h), (0, 0, 255), 2)
-    #for (x, y, w, h) in my_cats_1:
-   #     img = cv.rectangle(resized, (x, y), (x + w, y + h), (253, 233, 17), 2)
+    for (x, y, w, h) in my_cats_1:
+        img = cv.rectangle(resized, (x, y), (x + w, y + h), (253, 233, 17), 2)
 
     cv.imwrite('output\\' + 'out' + image_name, img)
 

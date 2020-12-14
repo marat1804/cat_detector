@@ -1,6 +1,7 @@
 from lxml import etree
 from multiprocessing import Pool, cpu_count
 import time
+from PIL import Image
 
 import numpy as np
 from scipy.signal import convolve2d
@@ -66,8 +67,9 @@ def show_points_of_interest(photo_path, width, height, feature_matrices, stages_
     image = cv.resize(image, dim, interpolation=cv.INTER_AREA)
     image_height, image_width = image.shape[0], image.shape[1]
     plt.imshow(image)
-
+    count = 0
     for stage in stages_list:
+        count += 1
         image_copy = image.copy()
 
         for classifier in stage[1]:
@@ -100,6 +102,9 @@ def show_points_of_interest(photo_path, width, height, feature_matrices, stages_
         plt.figure()
         plt.imshow(image_copy, cmap="gray")
         plt.show()
+
+        im = Image.fromarray(image_copy)
+        im.save('points\\' + str(count)+'_stage.jpg')
 
 
 if __name__ == '__main__':
