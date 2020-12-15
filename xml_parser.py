@@ -104,10 +104,19 @@ def show_points_of_interest(photo_path, width, height, feature_matrices, stages_
         plt.show()
 
         im = Image.fromarray(image_copy)
-        im.save('points\\' + str(count)+'_stage.jpg')
+        im.save('points\\' + str(count)+'_stage_glitch.jpg')
+
+
+def show_feature(features, i):
+    plt.imshow(features[i], cmap="gray")
+    plt.show()
+    plt.imsave('test.png', features[i], cmap="gray")
+
 
 
 if __name__ == '__main__':
     cascade_path = 'source\cascade_cat.xml'
+    #cascade_glitch = 'updated.xml'
     w, h, f, s = read_cascade(cascade_path)
-    show_points_of_interest('cats/7.jpg', w, h, f, s)
+    #show_points_of_interest('cats/7.jpg', w, h, f, s)
+    show_feature(f, 1)
