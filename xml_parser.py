@@ -6,6 +6,8 @@ from PIL import Image
 import numpy as np
 from scipy.signal import convolve2d
 import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+
 import cv2 as cv
 
 
@@ -150,8 +152,9 @@ def show_points(photo_path, width, height, feature_matrices, stages_list, number
 
 def show_feature(features, i):
     plt.imshow(features[i], cmap="gray")
-    plt.show()
-    plt.imsave('test.png', features[i], cmap="gray")
+    plt.savefig('D:\\Python\\KG\\tmp\\feature.png', bbox_inches='tight')
+
+
 
 
 

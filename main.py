@@ -224,6 +224,11 @@ class RecogniserWindow(QtWidgets.QMainWindow, design.Ui_MainWindow):
             self.Number.setMaximum(19)
         if text == "Haar":
             self.mode = 'haar'
+            self.Number.setMaximum(2000)
+            self.listCascade.addItem(QListWidgetItem('Выбирай номер признака и в каком каскаде'))
+            self.listCascade.addItem(QListWidgetItem('OpenCV Cascade'))
+            self.listCascade.addItem(QListWidgetItem('OpenCV Cascade Extended'))
+            self.listCascade.addItem(QListWidgetItem('My Cascade'))
 
     def custom_params(self):
         self.listCascade.clear()
@@ -286,6 +291,10 @@ class RecogniserWindow(QtWidgets.QMainWindow, design.Ui_MainWindow):
                 width, height, feature_matrices, stages_list = xml_parser.read_cascade('source\\haarcascade_frontalcatface.xml')
                 xml_parser.show_points(self.path, width, height, feature_matrices, stages_list, int(self.Number.text()))
                 image = TEMP + str(self.Number.text()) + '.jpg'
+            elif self.mode == 'haar':
+                width, height, feature_matrices, stages_list = xml_parser.read_cascade('source\\haarcascade_frontalcatface.xml')
+                xml_parser.show_feature(feature_matrices, int(self.Number.text()))
+                image = TEMP + 'feature.png'
 
         elif text == "OpenCV Cascade Extended":
             if self.mode == 'detection':
@@ -298,6 +307,10 @@ class RecogniserWindow(QtWidgets.QMainWindow, design.Ui_MainWindow):
                 width, height, feature_matrices, stages_list = xml_parser.read_cascade('source\\haarcascade_frontalcatface_extended.xml')
                 xml_parser.show_points(self.path, width, height, feature_matrices, stages_list, int(self.Number.text()))
                 image = TEMP + str(self.Number.text()) + '.jpg'
+            elif self.mode == 'haar':
+                width, height, feature_matrices, stages_list = xml_parser.read_cascade('source\\haarcascade_frontalcatface_extended.xml')
+                xml_parser.show_feature(feature_matrices, int(self.Number.text()))
+                image = TEMP + 'feature.png'
 
         elif text == "My Cascade":
             if self.mode == 'detection':
@@ -310,6 +323,10 @@ class RecogniserWindow(QtWidgets.QMainWindow, design.Ui_MainWindow):
                 width, height, feature_matrices, stages_list = xml_parser.read_cascade('source\\cascade_cat.xml')
                 xml_parser.show_points(self.path, width, height, feature_matrices, stages_list, int(self.Number.text()))
                 image = TEMP + str(self.Number.text()) + '.jpg'
+            elif self.mode == 'haar':
+                width, height, feature_matrices, stages_list = xml_parser.read_cascade('source\\cascade_cat.xml')
+                xml_parser.show_feature(feature_matrices, int(self.Number.text()))
+                image = TEMP + 'feature.png'
 
         elif text == "Glitch Cascade":
             if self.mode == 'detection':
