@@ -104,7 +104,48 @@ def show_points_of_interest(photo_path, width, height, feature_matrices, stages_
         plt.show()
 
         im = Image.fromarray(image_copy)
-        im.save('points\\' + str(count)+'_stage_glitch.jpg')
+        im.save('points\\' + str(count)+'.jpg')
+
+def show_points(photo_path, width, height, feature_matrices, stages_list, number):
+    image = cv.imread(photo_path, 0)
+    scale_percent = 40
+    _w = int(image.shape[1] * scale_percent / 100)
+    _h = int(image.shape[0] * scale_percent / 100)
+    dim = (_w, _h)
+    image = cv.resize(image, dim, interpolation=cv.INTER_AREA)
+    image_height, image_width = image.shape[0], image.shape[1]
+    stage = stages_list[number]
+    image_copy = image.copy()
+
+    for classifier in stage[1]:
+        feature_num, thresh, less, greater = classifier
+
+        activation_map = convolve2d(image, feature_matrices[feature_num], mode="valid")
+
+        if greater > less:
+            activation_map[activation_map < thresh] = 0
+        else:
+            activation_map[activation_map > thresh] = 0
+
+        # top 5 non-zero activations
+        k = 5
+        flatten_activation_map = activation_map.flatten()
+        top_indices = np.argpartition(flatten_activation_map, -k)[-k:]
+
+        # filter zero activations
+        top_indices = top_indices[flatten_activation_map[top_indices] > 0]
+
+        for top_index in top_indices:
+            i, j = np.unravel_index(top_index, activation_map.shape)
+
+            image_part = image[i:i + height, j:j + width].astype(np.uint8)
+            rectangle = np.ones(image_part.shape, dtype=np.uint8) * 255
+
+            res = cv.addWeighted(image_part, 0.5, rectangle, 0.5, 1.0)
+            image_copy[i:i + height, j:j + width] = res
+
+        im = Image.fromarray(image_copy)
+        im.save('tmp\\' + str(number) + '.jpg')
 
 
 def show_feature(features, i):

@@ -8,6 +8,7 @@ import cv2 as cv
 import design
 import os
 from PyQt5.QtWidgets import QListWidgetItem
+import xml_parser
 
 TEMP = "tmp/"
 IMG_NUM = "1"
@@ -53,7 +54,7 @@ class CatDetector:
     def opencv_cat(self, image, SF, N):
         final_img = self.prepare_image(image)
         gray = cv.cvtColor(final_img, cv.COLOR_BGR2GRAY)
-        cascade = cv.CascadeClassifier("source\haarcascade_frontalcatface.xml")
+        cascade = cv.CascadeClassifier("source\\haarcascade_frontalcatface.xml")
         cats = cascade.detectMultiScale(gray, scaleFactor=SF, minNeighbors=N, minSize=(40, 40))
         for (x, y, w, h) in cats:
             final_img = cv.rectangle(final_img, (x, y), (x + w, y + h), (255, 0, 0), 2)
@@ -198,6 +199,7 @@ class RecogniserWindow(QtWidgets.QMainWindow, design.Ui_MainWindow):
     def __init__(self):
         super().__init__()
         self.path = ''
+        self.mode = 'detection'
         self.setupUi(self)
         self.loadPic.clicked.connect(self.browse_pic)
         self.custom.clicked.connect(self.custom_params)
@@ -205,36 +207,42 @@ class RecogniserWindow(QtWidgets.QMainWindow, design.Ui_MainWindow):
         self.listMode.itemClicked.connect(self.chooseMode)
 
     def chooseMode(self, item):
-        print(item.text())
         self.pic.clear()
-
+        self.listCascade.clear()
         text = str(item.text())
 
         if text == "Detection":
-            pass
+            self.mode = 'detection'
 
         if text == "Points":
-            pass
-
+            self.mode = 'points'
+            self.listCascade.addItem(QListWidgetItem('Original'))
+            self.listCascade.addItem(QListWidgetItem('OpenCV Cascade'))
+            self.listCascade.addItem(QListWidgetItem('OpenCV Cascade Extended'))
+            self.listCascade.addItem(QListWidgetItem('My Cascade'))
+            self.listCascade.addItem(QListWidgetItem('Glitch Cascade'))
+            self.Number.setMaximum(19)
         if text == "Haar":
-            pass
-
-
+            self.mode = 'haar'
 
     def custom_params(self):
         self.listCascade.clear()
-        if self.path == '':
-            self.listCascade.addItem(QListWidgetItem('Файл не был загружен'))
-            return
-        self.listCascade.addItem(QListWidgetItem('Пользовательские параметры успешно прочитаны'))
-        sf = self.ScaleFactor.text()
-        mn = self.minNeighbours.text()
-        CatDetector(self.path, self, float(sf.replace(',', '.')), int(mn))
+        if self.mode == 'detection':
+            if self.path == '':
+                self.listCascade.addItem(QListWidgetItem('Файл не был загружен'))
+                return
+            self.listCascade.addItem(QListWidgetItem('Пользовательские параметры успешно прочитаны'))
+            sf = self.ScaleFactor.text()
+            mn = self.minNeighbours.text()
+            CatDetector(self.path, self, float(sf.replace(',', '.')), int(mn))
+        else:
+            self.listCascade.addItem(QListWidgetItem('Вы  находитесь в режиме - ', self.mode))
 
     def browse_pic(self):
         self.listCascade.clear()
         photo = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file',
                                                       'D:\\Python\\KG', "Image files (*.jpg *.gif, *.bmp, *.png)")[0]
+
         if photo:
             self.image = cv.imread(photo)
             self.path = photo
@@ -244,36 +252,83 @@ class RecogniserWindow(QtWidgets.QMainWindow, design.Ui_MainWindow):
             dim = (width, height)
             resized = cv.resize(self.image, dim, interpolation=cv.INTER_AREA)
             cv.imwrite("tmp\\original.bmp", resized)
-            if filetype.is_image(photo):
-                self.listCascade.addItem(QListWidgetItem('Файл успешно прочитан как изображение'))
-                CatDetector(photo, self)
-            else:
-                self.listCascade.addItem(QListWidgetItem('Файл не является изображением'))
+            if self.mode == 'detection':
+                if filetype.is_image(photo):
+                    self.listCascade.addItem(QListWidgetItem('Файл успешно прочитан как изображение'))
+                    CatDetector(photo, self)
+                else:
+                    self.listCascade.addItem(QListWidgetItem('Файл не является изображением'))
+            elif self.mode == 'points':
+                if filetype.is_image(photo):
+                    self.listCascade.addItem(QListWidgetItem('Файл успешно прочитан как изображение. Выбирайте каскад'))
+                    self.listCascade.addItem(QListWidgetItem('Original'))
+                    self.listCascade.addItem(QListWidgetItem('OpenCV Cascade'))
+                    self.listCascade.addItem(QListWidgetItem('OpenCV Cascade Extended'))
+                    self.listCascade.addItem(QListWidgetItem('My Cascade'))
+                    self.listCascade.addItem(QListWidgetItem('Glitch Cascade'))
+                else:
+                    self.listCascade.addItem(QListWidgetItem('Файл не является изображением'))
 
     def setImage(self, item):
         text = str(item.text())
 
         if text == "Original":
             image = TEMP + 'original.bmp'
-            #image = cv.imread(TEMP + 'original.bmp')
+
         elif text == "OpenCV Cascade":
-            image = TEMP + 'opencv_cat.bmp'
-            #image = cv.imread(TEMP + 'opencv_cat.bmp')
+            if self.mode == 'detection':
+                image = TEMP + 'opencv_cat.bmp'
+            elif self.mode == 'points':
+                if self.path == '':
+                    self.listCascade.clear()
+                    self.listCascade.addItem(QListWidgetItem('Изображение не было загружено'))
+                    return
+                width, height, feature_matrices, stages_list = xml_parser.read_cascade('source\\haarcascade_frontalcatface.xml')
+                xml_parser.show_points(self.path, width, height, feature_matrices, stages_list, int(self.Number.text()))
+                image = TEMP + str(self.Number.text()) + '.jpg'
+
         elif text == "OpenCV Cascade Extended":
-            image = TEMP + 'opencv_cat_ext.bmp'
-            #image = cv.imread(TEMP + 'opencv_cat_ext.bmp')
+            if self.mode == 'detection':
+                image = TEMP + 'opencv_cat_ext.bmp'
+            elif self.mode == 'points':
+                if self.path == '':
+                    self.listCascade.clear()
+                    self.listCascade.addItem(QListWidgetItem('Изображение не было загружено'))
+                    return
+                width, height, feature_matrices, stages_list = xml_parser.read_cascade('source\\haarcascade_frontalcatface_extended.xml')
+                xml_parser.show_points(self.path, width, height, feature_matrices, stages_list, int(self.Number.text()))
+                image = TEMP + str(self.Number.text()) + '.jpg'
+
         elif text == "My Cascade":
-            image = TEMP + 'my.bmp'
-            #image = cv.imread(TEMP + 'my.bmp')
+            if self.mode == 'detection':
+                image = TEMP + 'my.bmp'
+            elif self.mode == 'points':
+                if self.path == '':
+                    self.listCascade.clear()
+                    self.listCascade.addItem(QListWidgetItem('Изображение не было загружено'))
+                    return
+                width, height, feature_matrices, stages_list = xml_parser.read_cascade('source\\cascade_cat.xml')
+                xml_parser.show_points(self.path, width, height, feature_matrices, stages_list, int(self.Number.text()))
+                image = TEMP + str(self.Number.text()) + '.jpg'
+
         elif text == "Glitch Cascade":
-            image = TEMP + 'glitch.bmp'
-            #image = cv.imread(TEMP + 'glitch.bmp')
+            if self.mode == 'detection':
+                image = TEMP + 'glitch.bmp'
+            elif self.mode == 'points':
+                if self.path == '':
+                    self.listCascade.clear()
+                    self.listCascade.addItem(QListWidgetItem('Изображение не было загружено'))
+                    return
+                width, height, feature_matrices, stages_list = xml_parser.read_cascade('source\\glitch.xml')
+                xml_parser.show_points(self.path, width, height, feature_matrices, stages_list, int(self.Number.text()))
+                image = TEMP + str(self.Number.text()) + '.jpg'
+
         elif text == "All in one picture":
             image = TEMP + 'full.bmp'
-            #image = cv.imread(TEMP + 'full.bmp')
         else:
-            image = TEMP + 'original.bmp'
-            #image = cv.imread(TEMP + 'original.bmp')
+            if self.mode == 'detection':
+                image = TEMP + 'original.bmp'
+
         self.drawImage(image)
         self.pic.update()
 
