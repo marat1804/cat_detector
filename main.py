@@ -8,7 +8,7 @@ import cv2 as cv
 import design
 import os
 from PyQt5.QtWidgets import QListWidgetItem
-import xml_parser
+from xmlparser import XmlParser as xml_parser
 
 TEMP = "tmp/"
 IMG_NUM = "1"
@@ -41,6 +41,8 @@ class CatDetector:
 
         self.all_in_one(image, sf, n)
         window.addListWidgetButton(QListWidgetItem('All in one picture'))
+        self.end = time.time()
+        print("Object detection", self.end - self.start)
 
     @staticmethod
     def prepare_image(image):
@@ -58,7 +60,7 @@ class CatDetector:
         cats = cascade.detectMultiScale(gray, scaleFactor=SF, minNeighbors=N, minSize=(40, 40))
         for (x, y, w, h) in cats:
             final_img = cv.rectangle(final_img, (x, y), (x + w, y + h), (255, 0, 0), 2)
-        cv.imwrite("tmp\opencv_cat.bmp", final_img)
+        cv.imwrite("tmp\\opencv_cat.bmp", final_img)
 
     def opencv_cat_ext(self, image, SF, N):
         final_img = self.prepare_image(image)
@@ -94,7 +96,7 @@ class CatDetector:
     def all_in_one(self, image, SF, N):
         final_img = self.prepare_image(image)
         gray = cv.cvtColor(final_img, cv.COLOR_BGR2GRAY)
-        cat_cascade = cv.CascadeClassifier("source\haarcascade_frontalcatface.xml")
+        cat_cascade = cv.CascadeClassifier("source\\haarcascade_frontalcatface.xml")
         cat_cascade_ext = cv.CascadeClassifier("source\\haarcascade_frontalcatface_extended.xml")
         my_cascade = cv.CascadeClassifier("source\\cascade_cat.xml")
         glitch_cascade = cv.CascadeClassifier("source\\glitch.xml")
@@ -246,7 +248,7 @@ class RecogniserWindow(QtWidgets.QMainWindow, design.Ui_MainWindow):
     def browse_pic(self):
         self.listCascade.clear()
         photo = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file',
-                                                      'D:\\Python\\KG', "Image files (*.jpg *.gif, *.bmp, *.png)")[0]
+                                                      'D:\\Python\\KG', "Image files (*.jpg *.gif, *.bmp, *.png, *.jpeg)")[0]
 
         if photo:
             self.image = cv.imread(photo)
@@ -275,6 +277,7 @@ class RecogniserWindow(QtWidgets.QMainWindow, design.Ui_MainWindow):
                     self.listCascade.addItem(QListWidgetItem('Файл не является изображением'))
 
     def setImage(self, item):
+        start = time.time()
         text = str(item.text())
 
         if text == "Original":
@@ -345,7 +348,8 @@ class RecogniserWindow(QtWidgets.QMainWindow, design.Ui_MainWindow):
         else:
             if self.mode == 'detection':
                 image = TEMP + 'original.bmp'
-
+        end = time.time()
+        print("Mode " + self.mode + ": ", end - start)
         self.drawImage(image)
         self.pic.update()
 

@@ -7,7 +7,7 @@ from math import sqrt
 cat_cascade = cv.CascadeClassifier(r"D:\Python\KG\source\haarcascade_frontalcatface.xml")  ###path of cascade file
 cat_cascade_ext = cv.CascadeClassifier(r"D:\Python\KG\source\haarcascade_frontalcatface_extended.xml")  ###path of cascade file
 my_cascade = cv.CascadeClassifier(r"D:\Python\KG\source\cascade_cat.xml")
-my_cascade_1 = cv.CascadeClassifier(r"D:\Python\KG\updated.xml")
+my_cascade_1 = cv.CascadeClassifier(r"D:\Python\KG\source\glitch.xml")
 ## following is an test image u can take any image from the p folder in the temp folder and paste address of it on below line
 SF = 1.0485258
 N = 3
