@@ -8,6 +8,7 @@ import cv2 as cv
 
 class XmlParser:
 
+    @staticmethod
     def read_cascade(cascade_path):
         with open(cascade_path) as f:
             xml = f.read()
@@ -56,6 +57,7 @@ class XmlParser:
 
         return width, height, feature_matrices, stages_list
 
+    @staticmethod
     def show_points_of_interest(photo_path, width, height, feature_matrices, stages_list):
         image = cv.imread(photo_path, 0)
         scale_percent = 40
@@ -104,6 +106,7 @@ class XmlParser:
             im = Image.fromarray(image_copy)
             im.save('points\\' + str(count) + '.jpg')
 
+    @staticmethod
     def show_points(photo_path, width, height, feature_matrices, stages_list, number):
         image = cv.imread(photo_path, 0)
         scale_percent = 40
@@ -116,8 +119,8 @@ class XmlParser:
         image_copy = image.copy()
 
         for classifier in stage[1]:
-            feature_num, thresh, less, greater = classifier
 
+            feature_num, thresh, less, greater = classifier
             activation_map = convolve2d(image, feature_matrices[feature_num], mode="valid")
 
             if greater > less:
@@ -128,6 +131,7 @@ class XmlParser:
             # top 5 non-zero activations
             k = 5
             flatten_activation_map = activation_map.flatten()
+
             top_indices = np.argpartition(flatten_activation_map, -k)[-k:]
 
             # filter zero activations
@@ -156,4 +160,4 @@ if __name__ == '__main__':
     x = XmlParser()
     w, h, f, s = x.read_cascade(cascade_path)
     # show_points_of_interest('cats/7.jpg', w, h, f, s)
-    x.show_feature(f, 1)
+    x.show_points("cats/7.jpg", w, h, f, s, 0)
