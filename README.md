@@ -1,4 +1,4 @@
-# Railway detection
+# Cat detection
 
 `Python 3.8` `OpenCv2 4.4.0` `PyQt5`
 
