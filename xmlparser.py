@@ -155,9 +155,10 @@ class XmlParser:
 
 
 if __name__ == '__main__':
-    cascade_path = 'source\cascade_cat.xml'
+    cascade_path = 'source/haarcascade_frontalcatface.xml'
     # cascade_glitch = 'updated.xml'
     x = XmlParser()
     w, h, f, s = x.read_cascade(cascade_path)
+    print(len(f))
     # show_points_of_interest('cats/7.jpg', w, h, f, s)
     x.show_points("cats/7.jpg", w, h, f, s, 0)
