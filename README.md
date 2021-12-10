@@ -1,6 +1,8 @@
 # Cat detection
 
-`Python 3.8` `OpenCv2 4.4.0` `PyQt5`
+This is my cat detector based on Haar cascades. There is also comparison between the cascade trained by me and the one provided by OpenCV
+
+`Python 3.8` `OpenCV2 4.4.0` `PyQt5`
 
 Last improvements : 18.12.2020
 
